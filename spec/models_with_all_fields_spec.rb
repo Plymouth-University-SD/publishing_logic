@@ -4,18 +4,31 @@ require 'general_model_logic'
 describe 'Using publishing logic on models with all fields' do
   describe "validations" do
     it "should now allow the published_until to be before the published_at" do
-      make_programme(:published_at => 2.days.ago,
-                     :published_until => 3.days.ago).should_not be_valid
+      make_programme(:published_at => 3.days.from_now,
+                     :published_until => 2.days.from_now).should_not be_valid
     end
 
     it "should allow the published_until to be the same as published_at" do
-      make_programme(:published_at => 2.days.ago,
-                     :published_until => 2.days.ago).should be_valid
+      make_programme(:published_at => 2.days.from_now,
+                     :published_until => 2.days.from_now).should be_valid
     end
 
     it "should allow the published_until to be just after published_at" do
-      make_programme(:published_at => 2.days.ago,
-                     :published_until => 2.days.ago + 1.second).should be_valid
+      make_programme(:published_at => 2.days.from_now,
+                     :published_until => 2.days.from_now + 1.second).should be_valid
+    end
+
+    it "should not allow the published_at to be blank if publishing is enabled" do
+      make_programme(:published_at => nil,
+                     :publishing_enabled => true).should_not be_valid
+    end
+
+    it "should ensure that the published_until date is in the future if it exists" do
+      make_programme(:published_until => 2.days.ago).should_not be_valid
+    end
+
+    it "should allow the published_until date to be empty" do
+      make_programme(:published_until => nil).should be_valid
     end
   end
 

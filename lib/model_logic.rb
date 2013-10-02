@@ -8,6 +8,8 @@ module PublishingLogic
                             WithoutPublishedUntilField
                           end
       base.class_eval do
+        validates :published_at, :presence => true, :if => :publishing_enabled?
+
         # If objects have identical published_at values, order by created_at. If these are
         # identical as well, then order by id. This is done to ensure there is a unique
         # ordering of objects, ordering by newest and oldest should result in arrays that are
@@ -52,6 +54,7 @@ module PublishingLogic
       def self.included(base)
         base.class_eval do
           validate :published_until_is_not_before_published_at
+          validate :publishing_until_in_future
 
           scope :published, lambda { where("#{base.table_name}.publishing_enabled = ? AND \
                                             (#{base.table_name}.published_until IS NULL or #{base.table_name}.published_until > ?) AND \
@@ -75,6 +78,12 @@ module PublishingLogic
           private
           def published_until_is_not_before_published_at
             errors.add(:published_until, "should not be before publishing at") if published_until.present? && published_at.present? && published_until < published_at
+          end
+
+          def publishing_until_in_future
+            if published_until && !published_until.future?
+              errors.add(:published_until, 'must be in the future')
+            end
           end
         end
       end
