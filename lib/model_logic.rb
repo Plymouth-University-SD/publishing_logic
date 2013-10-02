@@ -8,7 +8,7 @@ module PublishingLogic
                             WithoutPublishedUntilField
                           end
       base.class_eval do
-        validates :published_at, :presence => true, :if => :publishing_enabled?
+        validates_presence_of :published_at, :if => :publishing_enabled?
 
         # If objects have identical published_at values, order by created_at. If these are
         # identical as well, then order by id. This is done to ensure there is a unique

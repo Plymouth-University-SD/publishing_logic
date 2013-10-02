@@ -23,6 +23,11 @@ describe 'Using publishing logic on models with all fields' do
                      :publishing_enabled => true).should_not be_valid
     end
 
+    it "should allow the published_at to be blank if publishing is not enabled" do
+      make_programme(:published_at => nil,
+                     :publishing_enabled => false).should be_valid
+    end
+
     it "should ensure that the published_until date is in the future if it exists" do
       make_programme(:published_until => 2.days.ago).should_not be_valid
     end
